@@ -39,7 +39,6 @@ class GenBot
 
     bot.on_follow do |user|
       bot.delay DELAY do
-        puts "Followed by @#{user[:screen_name]}"
         bot.follow user[:screen_name]
       end
     end
