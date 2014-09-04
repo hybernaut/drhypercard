@@ -1,20 +1,18 @@
 #!/usr/bin/env ruby
 
+require 'dotenv'
+Dotenv.load(".env")
+
 require 'twitter_ebooks'
 include Ebooks
 
-CONSUMER_KEY = ""
-CONSUMER_SECRET = ""
-OATH_TOKEN = "" # oauth token for ebooks account
-OAUTH_TOKEN_SECRET = "" # oauth secret for ebooks account
-
 ROBOT_ID = "ebooks" # Avoid infinite reply chains
-TWITTER_USERNAME = "ebooks_username" # Ebooks account username
-TEXT_MODEL_NAME = "username" # This should be the name of the text model
+TWITTER_USERNAME = "Drhypercard" # Ebooks account username
+TEXT_MODEL_NAME = "drhypercube" # This should be the name of the text model
 
-DELAY = 2..30 # Simulated human reply delay range in seconds
+DELAY = 2..15 # Simulated human reply delay range in seconds
 BLACKLIST = ['insomnius', 'upulie'] # Grumpy users to avoid interaction with
-SPECIAL_WORDS = ['ebooks', 'bot', 'bots', 'clone', 'singularity', 'world domination']
+SPECIAL_WORDS = ['hawk', 'falcon', 'brujo', 'shadow site']
 
 # Track who we've randomly interacted with globally
 $have_talked = {}
@@ -24,8 +22,8 @@ class GenBot
     @bot = bot
     @model = nil
 
-    bot.consumer_key = CONSUMER_KEY
-    bot.consumer_secret = CONSUMER_SECRET
+    bot.consumer_key = ENV['CONSUMER_KEY']
+    bot.consumer_secret = ENV['CONSUMER_SECRET']
 
     bot.on_startup do
       @model = Model.load("model/#{modelname}.model")
@@ -41,6 +39,7 @@ class GenBot
 
     bot.on_follow do |user|
       bot.delay DELAY do
+        puts "Followed by @#{user[:screen_name]}"
         bot.follow user[:screen_name]
       end
     end
@@ -97,10 +96,13 @@ class GenBot
       end
     end
 
-    # Schedule a main tweet for every day at midnight
+    # Clear interaction list every day at midnight
     bot.scheduler.cron '0 0 * * *' do
-      bot.tweet @model.make_statement
       $have_talked = {}
+    end
+
+    bot.scheduler.cron '7 8,11,15 * * *' do
+      bot.tweet @model.make_statement
     end
   end
 
@@ -131,8 +133,8 @@ def make_bot(bot, modelname)
 end
 
 Ebooks::Bot.new(TWITTER_USERNAME) do |bot|
-  bot.oauth_token = OATH_TOKEN
-  bot.oauth_token_secret = OAUTH_TOKEN_SECRET
+  bot.oauth_token = ENV['OATH_TOKEN']
+  bot.oauth_token_secret = ENV['OAUTH_TOKEN_SECRET']
 
   make_bot(bot, TEXT_MODEL_NAME)
 end
