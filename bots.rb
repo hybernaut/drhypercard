@@ -45,7 +45,9 @@ class GenBot
         # send the user a message which is seeded from their description
         desc = user[:description]
         unless desc.nil? || desc.empty?
-          bot.tweet "@#{user[:screen_name]} Hello, " + @model.make_response(desc)
+          text = "@#{user[:screen_name]} Hello, " + @model.make_response(desc)
+          log "Greeting follower #{text}"
+          bot.tweet text
         end
       end
     end
@@ -107,6 +109,7 @@ class GenBot
       $have_talked = {}
     end
 
+    # TODO: analyze tweet patterns to mimic model's most common tweeting times
     bot.scheduler.cron '7 8,11,15 * * *' do
       bot.tweet @model.make_statement
     end
