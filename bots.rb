@@ -10,9 +10,9 @@ ROBOT_ID = "ebooks" # Avoid infinite reply chains
 TWITTER_USERNAME = "Drhypercard" # Ebooks account username
 TEXT_MODEL_NAME = "drhypercube" # This should be the name of the text model
 
-DELAY = 2..15 # Simulated human reply delay range in seconds
+DELAY = 2..10 # Simulated human reply delay range in seconds
 BLACKLIST = ['insomnius', 'upulie'] # Grumpy users to avoid interaction with
-SPECIAL_WORDS = ['hawk', 'falcon', 'brujo', 'shadow site']
+SPECIAL_WORDS = ['hawk', 'falcon', 'brujo', 'shadow site', 'froglet']
 
 # Track who we've randomly interacted with globally
 $have_talked = {}
@@ -40,6 +40,13 @@ class GenBot
     bot.on_follow do |user|
       bot.delay DELAY do
         bot.follow user[:screen_name]
+      end
+      bot.delay DELAY do
+        # send the user a message which is seeded from their description
+        desc = user[:description]
+        unless desc.nil? || desc.empty?
+          bot.tweet "@#{user[:screen_name]} Hello, " + @model.make_response(desc)
+        end
       end
     end
 
